@@ -1,0 +1,40 @@
+#!/usr/bin/env groovy
+
+//
+//Copyright (c) 2014-2022 Parallel Wireless, Inc. All rights reserved.
+//
+
+if (repository_slug=="vru-2g-phy" || repository_slug=="vru-3g-phy" || repository_slug=="vru-4g-phy" || repository_slug=="core"){
+	def submodules_check_output=''
+	stage ('Submodules Check'){
+		if (push_changes_0_new_name=="develop" || push_changes_0_new_name.contains("release/")){
+			env.GIT_COMMIT_EMAIL = sh(
+				label: "Get the email of the commit owner",
+				returnStdout: true,
+				script: "cd ${repository_slug} ; git log --format='%ae' | head -1").trim()
+			sh """
+			cd ${repository_slug}
+			git checkout -f ${push_changes_0_new_name} 
+			bash ../common-packaging/submodules_check/submodules-check.sh ${push_changes_0_new_name} ${repository_slug}
+			"""
+			submodules_check_output=readFile("${repository_slug}/output.html")
+			if (submodules_check_output.contains("ERROR")) 
+				{        
+					emailext (
+					mimeType: 'text/html',
+					to: "Access-DevOps@parallelwireless.com , cc:${env.GIT_COMMIT_EMAIL}",
+					subject: "ERROR: Mismatch was found between ${repository_slug} and submodules",
+					body: '${FILE,path="${repository_slug}/output.html"}'	   
+							)
+				sh """
+				exit 1
+				"""					
+				}
+			sh """
+			rm -rf ${repository_slug}/output.html
+			cd ${repository_slug}
+			git checkout -f ${push_changes_0_new_target_hash}
+			"""
+		}
+	}
+}
