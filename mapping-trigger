@@ -1,0 +1,88 @@
+
+// Assuming we have the following env variables:
+// UPSTREAM_REPO , push_changes_0_new_name
+
+def branches = [
+    'core'            :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    'access-iso'      :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    '2g-stack'        :   [ 'develop' , 'release/REL_6.3.x' ],
+    'osmo2g'          :   [ 'develop' , 'release/REL_6.3.x' ],
+    'vru-2g-phy'      :   [ 'develop' , 'release/REL_6.3.x' ],
+    'vru-3g-phy'      :   [ 'release/REL_6.3.x' ],
+    'nodeh'           :   [ 'release/REL_6.3.x' ],
+    'vru-4g-phy'      :   [ 'develop' , 'release/REL_6.3.x' ],
+    'core-stacks'     :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    'pnf-vnf'         :   [ 'release/REL_6.2.x' ],
+    'core-stacks-phy' :   [ 'release/REL_6.2.x' ],
+    'nr-stack'        :   [ 'develop' ],
+    'vru-5g-phy'      :   [ 'develop' ]
+]
+
+def setups = [
+    'core'            :   [ '2G' , '3G' , '4G' , '5G' ],
+    'access-iso'      :   [ '2G' , '3G' , '4G' , '5G' ],
+    '2g-stack'        :   [ '2G' ],
+    'osmo2g'          :   [ '2G' ],
+    'vru-2g-phy'      :   [ '2G' ],
+    'vru-3g-phy'      :   [ '3G' ],
+    'nodeh'           :   [ '3G' ],
+    'vru-4g-phy'      :   [ '4G' ],
+    'core-stacks'     :   [ '4G' ],
+    'pnf-vnf'         :   [ '4G' ],
+    'core-stacks-phy' :   [ '4G' ],
+    'nr-stack'        :   [ '5G' ],
+    'vru-5g-phy'      :   [ '5G' ]
+]
+
+def labels = [
+    'develop'                                :   [ 'access-qa-5G_opt8-atp-develop' , 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
+    'release/REL_6.3.x'                      :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'release/REL_6.2.x'                      :   [ 'access-qa-4G_opt6-atp-release' ],
+    'private/vru-4g-phy/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
+    'private/core-stacks/develop'            :   [ 'access-qa-4G_opt8-atp-develop' ],
+    'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-3G_opt8-atp-develop' ],
+    'private/core/develop'                   :   [ 'access-qa-4G_opt8-atp-develop' ],
+    'private/vru-4g-phy/release/REL_6.3.x'   :   [ 'access-qa-4G_opt8-atp-release' ],
+    'private/core-stacks/release/REL_6.3.x'  :   [ 'access-qa-4G_opt8-atp-release' ],
+    'private/core/release/REL_6.3.x'         :   [ 'access-qa-4G_opt8-atp-release' ]
+]
+
+if ( labels.containsKey(push_changes_0_new_name) ) {
+    print 'Found branch in labels list...'
+
+    def BRANCH_LIST = branches.get(UPSTREAM_REPO)
+    print 'Checking if branches correspond...'
+    def STOP = "yes"
+    BRANCH_LIST.each { item ->
+        if ( push_changes_0_new_name.contains(item) ) {
+            STOP = "no"
+        }    
+    }
+
+    if ( STOP == "no" ) {
+
+        print 'Getting RAT according to repository...'
+        def RAT = setups.get(UPSTREAM_REPO)
+        print RAT
+
+        print 'Getting label to trigger...'
+        def TRIGGER = labels.get(push_changes_0_new_name)
+        print TRIGGER
+        RAT.each { item ->
+            def label = TRIGGER.find { it =~ item }
+            if (label != null){
+                env.TESTS_TRIGGERED = true
+                triggerDownstreamJob(label)
+            }
+        }
+     }//if
+}//if
+
+def triggerDownstreamJob(LABEL) {
+    def retr_build_job = "pw-pytest-test"
+    build job: retr_build_job, parameters: [string(name: 'push_changes_0_new_name_pkg', value: String.valueOf(push_changes_0_new_name)),
+                                            string(name: 'push_changes_0_new_target_hash_pkg', value: String.valueOf(push_changes_0_new_target_hash)),
+                                            string(name: 'repository_slug_pkg', value: String.valueOf(repository_slug)),
+                                            string(name: 'label_name', value: String.valueOf(LABEL)),
+                                            string(name: 'push_changes_0_new_name', value: 'Nightly')], propagate: false, wait: false
+}
