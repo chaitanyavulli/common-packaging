@@ -40,11 +40,17 @@ def labels = [
     'release/REL_6.2.x'                      :   [ 'access-qa-4G_opt6-atp-release' ],
     'private/vru-4g-phy/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/core-stacks/develop'            :   [ 'access-qa-4G_opt8-atp-develop' ],
-    'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-3G_opt8-atp-develop' ],
+    'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/core/develop'                   :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/vru-4g-phy/release/REL_6.3.x'   :   [ 'access-qa-4G_opt8-atp-release' ],
     'private/core-stacks/release/REL_6.3.x'  :   [ 'access-qa-4G_opt8-atp-release' ],
-    'private/core/release/REL_6.3.x'         :   [ 'access-qa-4G_opt8-atp-release' ]
+    'private/core/release/REL_6.3.x'         :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'private/nodeh/release/REL_6.3.x'        :   [ 'access-qa-3G_opt8-atp-release' ],
+    'private/vru-3g-phy/release/REL_6.3.x'   :   [ 'access-qa-3G_opt8-atp-release' ],
+    'private/access-iso/release/REL_6.3.x'   :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'private/vru-2g-phy/release/REL_6.3.x'   :   [ 'access-qa-2G_opt8-atp-release' ],
+    'private/2g-stack/release/REL_6.3.x'     :   [ 'access-qa-2G_opt8-atp-release' ],
+    'private/osmo2g/release/REL_6.3.x'       :   [ 'access-qa-2G_opt8-atp-release' ]
 ]
 
 if ( labels.containsKey(push_changes_0_new_name) ) {
