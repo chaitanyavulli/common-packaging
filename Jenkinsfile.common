@@ -4,7 +4,7 @@
 //Copyright (c) 2014-2022 Parallel Wireless, Inc. All rights reserved.
 //
 
-if (repository_slug=="vru-2g-phy" || repository_slug=="vru-3g-phy" || repository_slug=="vru-4g-phy" || repository_slug=="core"){
+if (repository_slug=="vru-2g-phy" || repository_slug=="vru-3g-phy" || repository_slug=="vru-4g-phy"){
 	def submodules_check_output=''
 	stage ('Submodules Check'){
 		if (push_changes_0_new_name=="develop" || push_changes_0_new_name.contains("release/")){
