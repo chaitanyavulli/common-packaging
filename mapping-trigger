@@ -3,15 +3,15 @@
 // UPSTREAM_REPO , push_changes_0_new_name
 
 def branches = [
-    'core'            :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
-    'access-iso'      :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
-    '2g-stack'        :   [ 'develop' , 'release/REL_6.3.x' ],
-    'osmo2g'          :   [ 'develop' , 'release/REL_6.3.x' ],
-    'vru-2g-phy'      :   [ 'develop' , 'release/REL_6.3.x' ],
+    'core'            :   [ 'develop' , 'release/REL_6.4.x' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    'access-iso'      :   [ 'develop' , 'release/REL_6.4.x' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    '2g-stack'        :   [ 'develop' , 'release/REL_6.4.x' ],
+    'osmo2g'          :   [ 'develop' , 'release/REL_6.4.x' ],
+    'vru-2g-phy'      :   [ 'develop' , 'release/REL_6.4.x' ],
     'vru-3g-phy'      :   [ 'release/REL_6.3.x' ],
     'nodeh'           :   [ 'release/REL_6.3.x' ],
-    'vru-4g-phy'      :   [ 'develop' , 'release/REL_6.3.x' ],
-    'core-stacks'     :   [ 'develop' , 'release/REL_6.3.x' , 'release/REL_6.2.x' ],
+    'vru-4g-phy'      :   [ 'develop' , 'release/REL_6.4.x' ],
+    'core-stacks'     :   [ 'develop' , 'release/REL_6.4.x' , 'release/REL_6.2.x' ],
     'pnf-vnf'         :   [ 'release/REL_6.2.x' ],
     'core-stacks-phy' :   [ 'release/REL_6.2.x' ],
     'nr-stack'        :   [ 'develop' ],
@@ -36,24 +36,27 @@ def setups = [
 
 def labels = [
     'develop'                                :   [ 'access-qa-5G_opt8-atp-develop' , 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
-    'release/REL_6.3.x'                      :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'release/REL_6.4.x'                      :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'release/REL_6.3.x'                      :   [ 'access-qa-3G_opt8-atp-release' ],
     'release/REL_6.2.x'                      :   [ 'access-qa-4G_opt6-atp-release' ],
     'private/vru-4g-phy/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/core-stacks/develop'            :   [ 'access-qa-4G_opt8-atp-develop' ],
-    'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
-    'private/core/develop'                   :   [ 'access-qa-4G_opt8-atp-develop' ],
+    'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
+    'private/core/develop'                   :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
     'private/vru-2g-phy/develop'             :   [ 'access-qa-2G_opt8-atp-develop' ],
     'private/2g-stack/develop'               :   [ 'access-qa-2G_opt8-atp-develop' ],
     'private/osmo2g/develop'                 :   [ 'access-qa-2G_opt8-atp-develop' ],
-    'private/vru-4g-phy/release/REL_6.3.x'   :   [ 'access-qa-4G_opt8-atp-release' ],
-    'private/core-stacks/release/REL_6.3.x'  :   [ 'access-qa-4G_opt8-atp-release' ],
-    'private/core/release/REL_6.3.x'         :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'private/vru-4g-phy/release/REL_6.4.x'   :   [ 'access-qa-4G_opt8-atp-release' ],
+    'private/core-stacks/release/REL_6.4.x'  :   [ 'access-qa-4G_opt8-atp-release' ],
+    'private/core/release/REL_6.4.x'         :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'private/core/release/REL_6.3.x'         :   [ 'access-qa-3G_opt8-atp-release' ],
     'private/nodeh/release/REL_6.3.x'        :   [ 'access-qa-3G_opt8-atp-release' ],
     'private/vru-3g-phy/release/REL_6.3.x'   :   [ 'access-qa-3G_opt8-atp-release' ],
-    'private/access-iso/release/REL_6.3.x'   :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-3G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
-    'private/vru-2g-phy/release/REL_6.3.x'   :   [ 'access-qa-2G_opt8-atp-release' ],
-    'private/2g-stack/release/REL_6.3.x'     :   [ 'access-qa-2G_opt8-atp-release' ],
-    'private/osmo2g/release/REL_6.3.x'       :   [ 'access-qa-2G_opt8-atp-release' ]
+    'private/access-iso/release/REL_6.4.x'   :   [ 'access-qa-4G_opt8-atp-release' , 'access-qa-2G_opt8-atp-release' ],
+    'private/access-iso/release/REL_6.3.x'   :   [ 'access-qa-3G_opt8-atp-release' ],
+    'private/vru-2g-phy/release/REL_6.4.x'   :   [ 'access-qa-2G_opt8-atp-release' ],
+    'private/2g-stack/release/REL_6.4.x'     :   [ 'access-qa-2G_opt8-atp-release' ],
+    'private/osmo2g/release/REL_6.4.x'       :   [ 'access-qa-2G_opt8-atp-release' ]
 ]
 
 if ( labels.containsKey(push_changes_0_new_name) ) {
