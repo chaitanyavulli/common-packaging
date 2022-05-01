@@ -1,0 +1,92 @@
+#!/usr/bin/env groovy
+
+//
+//Copyright (c) 2014-2022 Parallel Wireless, Inc. All rights reserved.
+//
+
+
+node('usnh && k8s && small') {
+	properties([
+		parameters([
+            string(defaultValue: 'develop', description: 'Branch Name:', name: 'push_changes_0_new_name', trim: true),
+            string(defaultValue: 'common-packaging', description: 'Repository Name:', name: 'repository_slug', trim: true),
+        ]),
+		pipelineTriggers([
+			GenericTrigger(
+				causeString: 'PR of \$pullrequest_fromRef_repository_slug',
+				genericVariables: [
+					[defaultValue: '', key: 'pullrequest', regexpFilter: '', value: '$.pullrequest']
+					],
+				printContributedVariables: true,
+				printPostContent: true,
+				regexpFilterExpression: '',
+				regexpFilterText: '',
+				token: 'submodules-align'
+			)
+		])
+    ])
+    timestamps {
+        currentBuild.displayName = "${BUILD_NUMBER}:PR-${pullrequest_fromRef_repository_slug}:Branch-${pullrequest_fromRef_branch_name}"
+        println currentBuild.displayName
+        currentBuild.description = "Build common-packaging on branch: ${push_changes_0_new_name}"
+        def verCode = UUID.randomUUID().toString()
+		notifyBitbucket(commitSha1:pullrequest_fromRef_commit_hash)
+        try {
+			stage('Fetch'){
+                def retryAttempt = 0
+                retry(2) {
+                  if (retryAttempt > 0)
+                  { sleep 60 }
+                  retryAttempt = retryAttempt + 1
+                  sh """
+                  rm -rf ${pullrequest_toRef_repository_slug} common-packaging
+                  git clone ssh://git@git.parallelwireless.net:7999/cd/common-packaging.git -b ${push_changes_0_new_name}
+                  git lfs clone ssh://git@git.parallelwireless.net:7999/cd/${pullrequest_toRef_repository_slug}.git -b ${pullrequest_fromRef_branch_name}
+                  """
+                }
+            }
+			def submodules_check_output=''
+			stage ('Submodules Check'){
+				if (pullrequest_toRef_branch_name=="develop" || pullrequest_toRef_branch_name.contains("release/")){
+					env.GIT_COMMIT_EMAIL = sh(
+						label: "Get the email of the commit owner",
+						returnStdout: true,
+						script: "cd ${pullrequest_toRef_repository_slug} ; git log --format='%ae' ${pullrequest_fromRef_commit_hash}^!").trim()
+					sh """
+					cd ${pullrequest_toRef_repository_slug}
+					git checkout -f ${pullrequest_fromRef_branch_name} 
+					bash ../common-packaging/submodules_check/submodules-check.sh ${pullrequest_toRef_branch_name} ${pullrequest_toRef_repository_slug}
+					"""
+					submodules_check_output=readFile("${pullrequest_toRef_repository_slug}/output.html")
+					if (submodules_check_output.contains("ERROR")) 
+						{        
+							emailext (
+							mimeType: 'text/html',
+							to: "Access-DevOps@parallelwireless.com , cc:${env.GIT_COMMIT_EMAIL}",
+							subject: "${pullrequest_toRef_repository_slug}/pull-requests/${pullrequest_id} Alert: Mismatch was found between ${pullrequest_toRef_repository_slug} and submodules!",
+							body: '<b style="background-color:Tomato;">ALERT: DO NOT MERGE THE FOLLOWING PR:</b><br> \
+								   <b>PR link:</b> ${pullrequest_link}<br> \
+								   <b>merging this PR will result the following mismatch: </b><br><br> \
+								    ${FILE,path="${pullrequest_toRef_repository_slug}/output.html"}'	   
+									)
+						sh """
+						exit 1
+						"""					
+						}
+					sh """
+					rm -rf ${pullrequest_toRef_repository_slug}/output.html
+					"""
+				}
+			}
+            currentBuild.result = 'SUCCESS'
+        }
+        catch (Exception Error) {
+            currentBuild.result = 'FAILURE'
+            throw Error
+        }
+        finally {
+            cleanWs()
+			notifyBitbucket(commitSha1:pullrequest_fromRef_commit_hash)
+		}
+    }
+}
