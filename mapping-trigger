@@ -44,7 +44,7 @@ def labels = [
     'private/vru-4g-phy/develop'             :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/core-stacks/develop'            :   [ 'access-qa-4G_opt8-atp-develop' ],
     'private/access-iso/develop'             :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
-    'private/core/develop'                   :   [ 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
+    'private/core/develop'                   :   [ 'access-qa-5G_opt8-atp-develop' , 'access-qa-4G_opt8-atp-develop' , 'access-qa-2G_opt8-atp-develop' ],
     'private/vru-2g-phy/develop'             :   [ 'access-qa-2G_opt8-atp-develop' ],
     'private/2g-stack/develop'               :   [ 'access-qa-2G_opt8-atp-develop' ],
     'private/osmo2g/develop'                 :   [ 'access-qa-2G_opt8-atp-develop' ],
