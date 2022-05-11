@@ -62,7 +62,7 @@ node('usnh && k8s && small') {
 						{        
 							emailext (
 							mimeType: 'text/html',
-							to: "Access-DevOps@parallelwireless.com , cc:${env.GIT_COMMIT_EMAIL}",
+							to: "DevOps-CICD@parallelwireless.com , cc:${env.GIT_COMMIT_EMAIL}",
 							subject: "${pullrequest_toRef_repository_slug}/pull-requests/${pullrequest_id} Alert: Mismatch was found between ${pullrequest_toRef_repository_slug} and submodules!",
 							body: '<b style="background-color:Tomato;">ALERT: DO NOT MERGE THE FOLLOWING PR:</b><br> \
 								   <b>PR link:</b> ${pullrequest_link}<br> \
