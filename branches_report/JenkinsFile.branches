@@ -1,0 +1,125 @@
+#!/usr/bin/env groovy
+
+//
+//Copyright (c) 2014-2022 Parallel Wireless, Inc. All rights reserved.
+//
+
+node('usnh && k8s && small') {
+	properties([
+		parameters([
+            string(defaultValue: 'develop', description: 'Branch Name:', name: 'push_changes_0_new_name', trim: true),
+            string(defaultValue: 'common-packaging', description: 'Repository Name:', name: 'repository_slug', trim: true),
+			string(defaultValue: 'develop', description: 'Branch Name of Packaging Repositories', name: 'global_packaging_branch', trim: true),
+        ]),
+         pipelineTriggers([
+             cron('0 19 * * 1') //At 19:00 every Monday (02:00 every Tuesday- Israel time zone)
+         ]),
+    ])
+    timestamps {
+		withCredentials([usernameColonPassword(credentialsId: 'BuildStatus', variable: 'BuildStatus')]) {
+			def secrets = [
+					[path: 'development/engsvcs/global-manifest-update', engineVersion: 2, secretValues: [[envVar: 'prPass', vaultKey: 'prPassword'],[envVar: 'prUser', vaultKey: 'prUser']]]
+				]
+			def configuration = [
+				vaultUrl: 'https://vault.parallelwireless.net',vaultCredentialId: 'pwjenkins_vault', engineVersion: 2]
+			currentBuild.displayName = "${BUILD_NUMBER}:${repository_slug}:${push_changes_0_new_name}"
+			println currentBuild.displayName
+			currentBuild.description = "Build ${repository_slug} on branch: ${push_changes_0_new_name}"
+			def verCode = UUID.randomUUID().toString() 
+			def buildUser = getBuildUser()
+			def packaging_repos_list = [
+				'access-product-packaging',
+				'pwems-product-packaging',
+				'integrated-packaging'
+			]
+			try {
+				stage('Fetch'){
+					def retryAttempt = 0
+					retry(2) {
+					  if (retryAttempt > 0)
+					  { sleep 60 }
+					  retryAttempt = retryAttempt + 1
+					  sh """
+					  rm -rf common-packaging
+					  git clone ssh://git@git.parallelwireless.net:7999/cd/common-packaging.git -b ${push_changes_0_new_name}
+					  """
+					}
+					packaging_repos_list.each{packaging_repo ->
+						retryAttempt = 0
+						retry(2) {
+							if (retryAttempt > 0)
+							{ sleep 60 }
+							retryAttempt = retryAttempt + 1
+							sh """
+							rm -rf ${packaging_repo}
+							git clone ssh://git@git.parallelwireless.net:7999/cd/${packaging_repo}.git -b ${global_packaging_branch}
+							"""
+						}
+						sh """
+						cd ${packaging_repo}
+						bash ../common-packaging/branches_report/fetch_repos.sh
+						cd ..
+						"""
+					}
+				}
+				withVault([configuration: configuration, vaultSecrets: secrets]) {
+					stage('Create Branches Report'){
+						packaging_repos_list.each{packaging_repo ->
+							sh """
+							cd common-packaging
+							bash ./branches_report/create_branches_report.sh ${prUser} ${prPass} ${packaging_repo}
+							"""
+						}
+						sh """
+						cd common-packaging
+						bash ./branches_report/create_html_and_csv_files.sh
+						"""
+					}
+				}
+				stage ('Send Report via Email'){
+					emailext (
+								mimeType: 'text/html',
+								to: "DevOps-CICD@parallelwireless.com",
+								attachmentsPattern: "sorted_csv.csv",
+								subject: "Common-Packaging: Branches Report",
+								body: '${FILE,path="./output_summary.html"}'	   
+										)
+					sh """
+					rm -rf ./output.html
+					rm -rf ./output_summary.html
+					cat ./sorted_csv.csv
+					rm -rf ./sorted_csv.csv
+					"""
+				}
+				currentBuild.result = 'SUCCESS'
+			}
+			catch (Exception Error) {
+				currentBuild.result = 'FAILURE'
+				throw Error
+			}
+			finally { 
+				if ( currentBuild.result == "FAILURE" ) {
+					emailext (
+					mimeType: 'text/html',
+					to: "DevOps-CICD@parallelwireless.com",
+					subject: "[${currentBuild.result}] - ${env.JOB_NAME} - Build #${BUILD_NUMBER}",
+					body: "<b>Repository:</b> ${repository_slug}<br> \
+						   <b>Branch:</b> ${push_changes_0_new_name}<br> \
+						   <b>Build User:</b> ${buildUser}<br> \
+						   <b>Build URL:</b> ${env.BUILD_URL}<br>"
+					)
+				}
+				cleanWs() 
+			}
+		}
+    }
+}
+
+@NonCPS
+def getBuildUser() {
+    if (currentBuild.rawBuild.getCause(Cause.UserIdCause) != null) {
+        return currentBuild.rawBuild.getCause(Cause.UserIdCause).getUserId()
+    } else{
+        return 'parallel'
+    }
+}
