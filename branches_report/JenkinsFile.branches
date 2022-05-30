@@ -79,7 +79,7 @@ node('usnh && k8s && small') {
 				stage ('Send Report via Email'){
 					emailext (
 								mimeType: 'text/html',
-								to: "DevOps-CICD@parallelwireless.com",
+								to: "DevOps-CICD@parallelwireless.com,celdar@parallelwireless.com",
 								attachmentsPattern: "sorted_csv.csv",
 								subject: "Common-Packaging: Branches Report",
 								body: '${FILE,path="./output_summary.html"}'	   
@@ -101,7 +101,7 @@ node('usnh && k8s && small') {
 				if ( currentBuild.result == "FAILURE" ) {
 					emailext (
 					mimeType: 'text/html',
-					to: "DevOps-CICD@parallelwireless.com",
+					to: "DevOps-CICD@parallelwireless.com,celdar@parallelwireless.com",
 					subject: "[${currentBuild.result}] - ${env.JOB_NAME} - Build #${BUILD_NUMBER}",
 					body: "<b>Repository:</b> ${repository_slug}<br> \
 						   <b>Branch:</b> ${push_changes_0_new_name}<br> \
