@@ -22,7 +22,7 @@ if (repository_slug=="vru-2g-phy" || repository_slug=="vru-3g-phy" || repository
 				{        
 					emailext (
 					mimeType: 'text/html',
-					to: "DevOps-CICD@parallelwireless.com , cc:${env.GIT_COMMIT_EMAIL}",
+					to: "${env.GIT_COMMIT_EMAIL} , cc:DevOps-CICD@parallelwireless.com",
 					subject: "ERROR: Mismatch was found between ${repository_slug} and submodules",
 					body: '${FILE,path="${repository_slug}/output.html"}'	   
 							)
