@@ -86,14 +86,14 @@ if ( labels.containsKey(push_changes_0_new_name) ) {
             def label = TRIGGER.find { it =~ item }
             if (label != null){
                 env.TESTS_TRIGGERED = true
-                triggerDownstreamJob(label)
+                triggerDownstreamJob(label,item)
             }
         }
      }//if
 }//if
 
-def triggerDownstreamJob(LABEL) {
-    def retr_build_job = "pw-pytest-test"
+def triggerDownstreamJob(LABEL,rat) {
+    def retr_build_job = "pw-pytest-test-${rat}"
     build job: retr_build_job, parameters: [string(name: 'push_changes_0_new_name_pkg', value: String.valueOf(push_changes_0_new_name)),
                                             string(name: 'push_changes_0_new_target_hash_pkg', value: String.valueOf(push_changes_0_new_target_hash)),
                                             string(name: 'repository_slug_pkg', value: String.valueOf(repository_slug)),
