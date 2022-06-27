@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -a
-source common-packaging/pr_creation/reviewers.vars
+source ../common-packaging/pr_creation/reviewers.vars
 set +a
 
 SLUG_DEST=$1      # vru-5g-phy                            ; lte_phy_simulation
