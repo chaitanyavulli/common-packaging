@@ -98,5 +98,5 @@ def triggerDownstreamJob(LABEL,rat) {
                                             string(name: 'push_changes_0_new_target_hash_pkg', value: String.valueOf(push_changes_0_new_target_hash)),
                                             string(name: 'repository_slug_pkg', value: String.valueOf(repository_slug)),
                                             string(name: 'label_name', value: String.valueOf(LABEL)),
-                                            string(name: 'push_changes_0_new_name', value: 'Nightly')], propagate: false, wait: false
+                                            string(name: 'push_changes_0_new_name', value: 'integ/CICD')], propagate: false, wait: false
 }
